@@ -41,7 +41,8 @@ Src/sysmem.c \
 Src/syscalls.c \
 Src/system_stm32c0xx.c \
 Src/LED.c \
-Src/UART.c
+Src/UART.c \
+Src/timebase.c
 
 # ASM sources
 ASM_SOURCES =  \

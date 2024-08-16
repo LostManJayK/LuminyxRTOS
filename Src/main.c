@@ -1,10 +1,7 @@
 #include "LED.h"
 #include "UART.h"
+#include "timebase.h"
 
-void delay(unsigned count)
-{
-    while(--count > 0);
-}
 
 int main(void)
 {
@@ -15,10 +12,11 @@ int main(void)
 
     LEDInit();
     UARTInit();
+    timebaseInit();
 
     while(1)
     {
         UARTTransmit((uint8_t*)str, lenStr);
-        delay(1000000);
+        delay(1000);
     }
 }

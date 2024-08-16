@@ -3,8 +3,6 @@
 
 #include "stm32c031xx.h"
 
-void delay(unsigned);
-
 void LEDInit(void);
 
 void LEDOn(void);
