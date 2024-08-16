@@ -1,0 +1,20 @@
+{
+    "configurations": [
+    {
+        "cwd": "${workspaceFolder}",
+        "executable": "./build/RTOS_COURSE.elf",
+        "name": "Debug with OpenOCD",
+        "request": "launch",
+        "type": "cortex-debug",
+        "servertype": "openocd",
+        "configFiles": [
+            "/home/luminyx/Documents/Dev/Embedded/Setup/openocd/openocd/scripts/interface/stlink.cfg",
+            "/home/luminyx/Documents/Dev/Embedded/Setup/openocd/openocd/scripts/target/stm32c0x.cfg"
+                        
+        ],
+        "searchDir": [],
+        "runToEntryPoint": "main",
+        "showDevDebugOutput": "raw"
+    }
+    ]
+}

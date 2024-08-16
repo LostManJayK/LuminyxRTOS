@@ -1,0 +1,5 @@
+{
+    "cortex-debug.armToolchainPath": "/home/luminyx/Documents/Dev/Embedded/Setup/arm-gnu-toolchain/bin",
+    "cortex-debug.gdbPath": "/usr/bin/gdb-multiarch",
+    "cortex-debug.openocdPath": "/home/luminyx/Documents/Dev/Embedded/Setup/openocd/bin/openocd"
+}

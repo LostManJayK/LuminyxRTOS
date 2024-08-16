@@ -1,0 +1,649 @@
+ARM GAS  /tmp/ccTs76zE.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.arch armv6s-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"UART.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Src/UART.c"
+  18              		.section	.text.UARTInit,"ax",%progbits
+  19              		.align	1
+  20              		.global	UARTInit
+  21              		.syntax unified
+  22              		.code	16
+  23              		.thumb_func
+  25              	UARTInit:
+  26              	.LFB52:
+   1:Src/UART.c    **** #include "UART.h"
+   2:Src/UART.c    **** #include <stdio.h>
+   3:Src/UART.c    **** 
+   4:Src/UART.c    **** 
+   5:Src/UART.c    **** #define USART1EN (0b1 << 14)
+   6:Src/UART.c    **** #define GPIOAEN (0b1 << 0)
+   7:Src/UART.c    **** 
+   8:Src/UART.c    **** #define CR1_TE (0b1 << 3)
+   9:Src/UART.c    **** #define CR1_RE (0b1 << 2)
+  10:Src/UART.c    **** #define CR1_UE (0b1 << 0)
+  11:Src/UART.c    **** 
+  12:Src/UART.c    **** #define ISR_TXE (0b1 << 7)
+  13:Src/UART.c    **** 
+  14:Src/UART.c    **** #define SYS_FREQ 12000000
+  15:Src/UART.c    **** #define APB_CLK  SYS_FREQ
+  16:Src/UART.c    **** #define UART_BAUDRATE 9600
+  17:Src/UART.c    **** 
+  18:Src/UART.c    **** 
+  19:Src/UART.c    **** void UARTInit(void)
+  20:Src/UART.c    **** {
+  27              		.loc 1 20 1
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 80B5     		push	{r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 7, -8
+  35              		.cfi_offset 14, -4
+  36 0002 00AF     		add	r7, sp, #0
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_register 7
+ARM GAS  /tmp/ccTs76zE.s 			page 2
+
+
+  21:Src/UART.c    ****     //Enable GPIO clock
+  22:Src/UART.c    ****     RCC->IOPENR |= GPIOAEN;
+  39              		.loc 1 22 8
+  40 0004 384B     		ldr	r3, .L4
+  41 0006 5A6B     		ldr	r2, [r3, #52]
+  42 0008 374B     		ldr	r3, .L4
+  43              		.loc 1 22 17
+  44 000a 0121     		movs	r1, #1
+  45 000c 0A43     		orrs	r2, r1
+  46 000e 5A63     		str	r2, [r3, #52]
+  23:Src/UART.c    **** 
+  24:Src/UART.c    ****     //Set GPIO pins to alternate function mode
+  25:Src/UART.c    **** 
+  26:Src/UART.c    ****     //PB6 TX
+  27:Src/UART.c    ****     GPIOA->MODER &= ~(0b1 << 18);
+  47              		.loc 1 27 10
+  48 0010 A023     		movs	r3, #160
+  49 0012 DB05     		lsls	r3, r3, #23
+  50 0014 1A68     		ldr	r2, [r3]
+  51 0016 A023     		movs	r3, #160
+  52 0018 DB05     		lsls	r3, r3, #23
+  53              		.loc 1 27 18
+  54 001a 3449     		ldr	r1, .L4+4
+  55 001c 0A40     		ands	r2, r1
+  56 001e 1A60     		str	r2, [r3]
+  28:Src/UART.c    ****     GPIOA->MODER |= (0b1 << 19);
+  57              		.loc 1 28 10
+  58 0020 A023     		movs	r3, #160
+  59 0022 DB05     		lsls	r3, r3, #23
+  60 0024 1A68     		ldr	r2, [r3]
+  61 0026 A023     		movs	r3, #160
+  62 0028 DB05     		lsls	r3, r3, #23
+  63              		.loc 1 28 18
+  64 002a 8021     		movs	r1, #128
+  65 002c 0903     		lsls	r1, r1, #12
+  66 002e 0A43     		orrs	r2, r1
+  67 0030 1A60     		str	r2, [r3]
+  29:Src/UART.c    **** 
+  30:Src/UART.c    ****     //PB7 RX
+  31:Src/UART.c    ****     GPIOA->MODER &= ~(0b1 << 20);
+  68              		.loc 1 31 10
+  69 0032 A023     		movs	r3, #160
+  70 0034 DB05     		lsls	r3, r3, #23
+  71 0036 1A68     		ldr	r2, [r3]
+  72 0038 A023     		movs	r3, #160
+  73 003a DB05     		lsls	r3, r3, #23
+  74              		.loc 1 31 18
+  75 003c 2C49     		ldr	r1, .L4+8
+  76 003e 0A40     		ands	r2, r1
+  77 0040 1A60     		str	r2, [r3]
+  32:Src/UART.c    ****     GPIOA->MODER |= (0b1 << 21);
+  78              		.loc 1 32 10
+  79 0042 A023     		movs	r3, #160
+  80 0044 DB05     		lsls	r3, r3, #23
+  81 0046 1A68     		ldr	r2, [r3]
+  82 0048 A023     		movs	r3, #160
+  83 004a DB05     		lsls	r3, r3, #23
+ARM GAS  /tmp/ccTs76zE.s 			page 3
+
+
+  84              		.loc 1 32 18
+  85 004c 8021     		movs	r1, #128
+  86 004e 8903     		lsls	r1, r1, #14
+  87 0050 0A43     		orrs	r2, r1
+  88 0052 1A60     		str	r2, [r3]
+  33:Src/UART.c    **** 
+  34:Src/UART.c    ****     //Select alternate function for each pin
+  35:Src/UART.c    **** 
+  36:Src/UART.c    ****     //PB6 AF0
+  37:Src/UART.c    ****     GPIOA->AFR[1] &= ~(0b111 << 5);
+  89              		.loc 1 37 10
+  90 0054 A023     		movs	r3, #160
+  91 0056 DB05     		lsls	r3, r3, #23
+  92              		.loc 1 37 15
+  93 0058 5A6A     		ldr	r2, [r3, #36]
+  94              		.loc 1 37 10
+  95 005a A023     		movs	r3, #160
+  96 005c DB05     		lsls	r3, r3, #23
+  97              		.loc 1 37 19
+  98 005e E021     		movs	r1, #224
+  99 0060 8A43     		bics	r2, r1
+ 100 0062 5A62     		str	r2, [r3, #36]
+  38:Src/UART.c    ****     GPIOA->AFR[1] |= (0b1 << 4);
+ 101              		.loc 1 38 10
+ 102 0064 A023     		movs	r3, #160
+ 103 0066 DB05     		lsls	r3, r3, #23
+ 104              		.loc 1 38 15
+ 105 0068 5A6A     		ldr	r2, [r3, #36]
+ 106              		.loc 1 38 10
+ 107 006a A023     		movs	r3, #160
+ 108 006c DB05     		lsls	r3, r3, #23
+ 109              		.loc 1 38 19
+ 110 006e 1021     		movs	r1, #16
+ 111 0070 0A43     		orrs	r2, r1
+ 112 0072 5A62     		str	r2, [r3, #36]
+  39:Src/UART.c    **** 
+  40:Src/UART.c    ****     //PB7 AF0
+  41:Src/UART.c    ****     GPIOA->AFR[1] &= ~(0b111 << 9);
+ 113              		.loc 1 41 10
+ 114 0074 A023     		movs	r3, #160
+ 115 0076 DB05     		lsls	r3, r3, #23
+ 116              		.loc 1 41 15
+ 117 0078 5A6A     		ldr	r2, [r3, #36]
+ 118              		.loc 1 41 10
+ 119 007a A023     		movs	r3, #160
+ 120 007c DB05     		lsls	r3, r3, #23
+ 121              		.loc 1 41 19
+ 122 007e 1D49     		ldr	r1, .L4+12
+ 123 0080 0A40     		ands	r2, r1
+ 124 0082 5A62     		str	r2, [r3, #36]
+  42:Src/UART.c    ****     GPIOA->AFR[1] |= (0b1 << 8);
+ 125              		.loc 1 42 10
+ 126 0084 A023     		movs	r3, #160
+ 127 0086 DB05     		lsls	r3, r3, #23
+ 128              		.loc 1 42 15
+ 129 0088 5A6A     		ldr	r2, [r3, #36]
+ 130              		.loc 1 42 10
+ARM GAS  /tmp/ccTs76zE.s 			page 4
+
+
+ 131 008a A023     		movs	r3, #160
+ 132 008c DB05     		lsls	r3, r3, #23
+ 133              		.loc 1 42 19
+ 134 008e 8021     		movs	r1, #128
+ 135 0090 4900     		lsls	r1, r1, #1
+ 136 0092 0A43     		orrs	r2, r1
+ 137 0094 5A62     		str	r2, [r3, #36]
+  43:Src/UART.c    **** 
+  44:Src/UART.c    **** 
+  45:Src/UART.c    **** 
+  46:Src/UART.c    **** 
+  47:Src/UART.c    ****     //Enable clock for USART1
+  48:Src/UART.c    ****     RCC->APBENR2 |= USART1EN;
+ 138              		.loc 1 48 8
+ 139 0096 144B     		ldr	r3, .L4
+ 140 0098 1A6C     		ldr	r2, [r3, #64]
+ 141 009a 134B     		ldr	r3, .L4
+ 142              		.loc 1 48 18
+ 143 009c 8021     		movs	r1, #128
+ 144 009e C901     		lsls	r1, r1, #7
+ 145 00a0 0A43     		orrs	r2, r1
+ 146 00a2 1A64     		str	r2, [r3, #64]
+  49:Src/UART.c    **** 
+  50:Src/UART.c    ****     //Check if HSICLK is enabled
+  51:Src/UART.c    ****     while (!(RCC->CR & 0b1 << 8));
+ 147              		.loc 1 51 11
+ 148 00a4 C046     		nop
+ 149              	.L2:
+ 150              		.loc 1 51 17 discriminator 1
+ 151 00a6 104B     		ldr	r3, .L4
+ 152 00a8 1A68     		ldr	r2, [r3]
+ 153              		.loc 1 51 22 discriminator 1
+ 154 00aa 8023     		movs	r3, #128
+ 155 00ac 5B00     		lsls	r3, r3, #1
+ 156 00ae 1340     		ands	r3, r2
+ 157              		.loc 1 51 12 discriminator 1
+ 158 00b0 F9D0     		beq	.L2
+  52:Src/UART.c    **** 
+  53:Src/UART.c    ****     //Ensure the HSI prescaler is set to 4 (default)
+  54:Src/UART.c    ****     while (!(RCC->CR & (0b010 << 11)));
+ 159              		.loc 1 54 11
+ 160 00b2 C046     		nop
+ 161              	.L3:
+ 162              		.loc 1 54 17 discriminator 1
+ 163 00b4 0C4B     		ldr	r3, .L4
+ 164 00b6 1A68     		ldr	r2, [r3]
+ 165              		.loc 1 54 22 discriminator 1
+ 166 00b8 8023     		movs	r3, #128
+ 167 00ba 5B01     		lsls	r3, r3, #5
+ 168 00bc 1340     		ands	r3, r2
+ 169              		.loc 1 54 12 discriminator 1
+ 170 00be F9D0     		beq	.L3
+  55:Src/UART.c    **** 
+  56:Src/UART.c    ****     //Configure Baud Rate
+  57:Src/UART.c    ****     setBaudRate(APB_CLK, UART_BAUDRATE);
+ 171              		.loc 1 57 5
+ 172 00c0 9623     		movs	r3, #150
+ARM GAS  /tmp/ccTs76zE.s 			page 5
+
+
+ 173 00c2 9B01     		lsls	r3, r3, #6
+ 174 00c4 0C4A     		ldr	r2, .L4+16
+ 175 00c6 1900     		movs	r1, r3
+ 176 00c8 1000     		movs	r0, r2
+ 177 00ca FFF7FEFF 		bl	setBaudRate
+  58:Src/UART.c    **** 
+  59:Src/UART.c    ****     //Configure Transfer direction
+  60:Src/UART.c    ****     USART1->CR1 = CR1_TE | CR1_RE;
+ 178              		.loc 1 60 11
+ 179 00ce 0B4B     		ldr	r3, .L4+20
+ 180              		.loc 1 60 17
+ 181 00d0 0C22     		movs	r2, #12
+ 182 00d2 1A60     		str	r2, [r3]
+  61:Src/UART.c    **** 
+  62:Src/UART.c    ****     //Enable uart module
+  63:Src/UART.c    ****     USART1->CR1 |= CR1_UE;
+ 183              		.loc 1 63 11
+ 184 00d4 094B     		ldr	r3, .L4+20
+ 185 00d6 1A68     		ldr	r2, [r3]
+ 186 00d8 084B     		ldr	r3, .L4+20
+ 187              		.loc 1 63 17
+ 188 00da 0121     		movs	r1, #1
+ 189 00dc 0A43     		orrs	r2, r1
+ 190 00de 1A60     		str	r2, [r3]
+  64:Src/UART.c    **** }
+ 191              		.loc 1 64 1
+ 192 00e0 C046     		nop
+ 193 00e2 BD46     		mov	sp, r7
+ 194              		@ sp needed
+ 195 00e4 80BD     		pop	{r7, pc}
+ 196              	.L5:
+ 197 00e6 C046     		.align	2
+ 198              	.L4:
+ 199 00e8 00100240 		.word	1073876992
+ 200 00ec FFFFFBFF 		.word	-262145
+ 201 00f0 FFFFEFFF 		.word	-1048577
+ 202 00f4 FFF1FFFF 		.word	-3585
+ 203 00f8 001BB700 		.word	12000000
+ 204 00fc 00380140 		.word	1073821696
+ 205              		.cfi_endproc
+ 206              	.LFE52:
+ 208              		.section	.text.setBaudRate,"ax",%progbits
+ 209              		.align	1
+ 210              		.syntax unified
+ 211              		.code	16
+ 212              		.thumb_func
+ 214              	setBaudRate:
+ 215              	.LFB53:
+  65:Src/UART.c    **** 
+  66:Src/UART.c    **** //write the fractional baud rate to the BRR
+  67:Src/UART.c    **** static void setBaudRate(uint32_t periphClock, uint32_t baudRate)
+  68:Src/UART.c    **** {
+ 216              		.loc 1 68 1
+ 217              		.cfi_startproc
+ 218              		@ args = 0, pretend = 0, frame = 8
+ 219              		@ frame_needed = 1, uses_anonymous_args = 0
+ 220 0000 90B5     		push	{r4, r7, lr}
+ARM GAS  /tmp/ccTs76zE.s 			page 6
+
+
+ 221              	.LCFI2:
+ 222              		.cfi_def_cfa_offset 12
+ 223              		.cfi_offset 4, -12
+ 224              		.cfi_offset 7, -8
+ 225              		.cfi_offset 14, -4
+ 226 0002 83B0     		sub	sp, sp, #12
+ 227              	.LCFI3:
+ 228              		.cfi_def_cfa_offset 24
+ 229 0004 00AF     		add	r7, sp, #0
+ 230              	.LCFI4:
+ 231              		.cfi_def_cfa_register 7
+ 232 0006 7860     		str	r0, [r7, #4]
+ 233 0008 3960     		str	r1, [r7]
+  69:Src/UART.c    ****     USART1->BRR = computeBaudRate(periphClock, baudRate);
+ 234              		.loc 1 69 11
+ 235 000a 064C     		ldr	r4, .L7
+ 236              		.loc 1 69 19
+ 237 000c 3A68     		ldr	r2, [r7]
+ 238 000e 7B68     		ldr	r3, [r7, #4]
+ 239 0010 1100     		movs	r1, r2
+ 240 0012 1800     		movs	r0, r3
+ 241 0014 FFF7FEFF 		bl	computeBaudRate
+ 242 0018 0300     		movs	r3, r0
+ 243              		.loc 1 69 17 discriminator 1
+ 244 001a E360     		str	r3, [r4, #12]
+  70:Src/UART.c    **** }
+ 245              		.loc 1 70 1
+ 246 001c C046     		nop
+ 247 001e BD46     		mov	sp, r7
+ 248 0020 03B0     		add	sp, sp, #12
+ 249              		@ sp needed
+ 250 0022 90BD     		pop	{r4, r7, pc}
+ 251              	.L8:
+ 252              		.align	2
+ 253              	.L7:
+ 254 0024 00380140 		.word	1073821696
+ 255              		.cfi_endproc
+ 256              	.LFE53:
+ 258              		.global	__aeabi_uidiv
+ 259              		.global	__aeabi_uidivmod
+ 260              		.section	.text.computeBaudRate,"ax",%progbits
+ 261              		.align	1
+ 262              		.syntax unified
+ 263              		.code	16
+ 264              		.thumb_func
+ 266              	computeBaudRate:
+ 267              	.LFB54:
+  71:Src/UART.c    **** 
+  72:Src/UART.c    **** //Calculate the fractional baud rate
+  73:Src/UART.c    **** static uint32_t computeBaudRate(uint32_t periphClock, uint32_t baudRate)
+  74:Src/UART.c    **** {
+ 268              		.loc 1 74 1
+ 269              		.cfi_startproc
+ 270              		@ args = 0, pretend = 0, frame = 16
+ 271              		@ frame_needed = 1, uses_anonymous_args = 0
+ 272 0000 80B5     		push	{r7, lr}
+ 273              	.LCFI5:
+ARM GAS  /tmp/ccTs76zE.s 			page 7
+
+
+ 274              		.cfi_def_cfa_offset 8
+ 275              		.cfi_offset 7, -8
+ 276              		.cfi_offset 14, -4
+ 277 0002 84B0     		sub	sp, sp, #16
+ 278              	.LCFI6:
+ 279              		.cfi_def_cfa_offset 24
+ 280 0004 00AF     		add	r7, sp, #0
+ 281              	.LCFI7:
+ 282              		.cfi_def_cfa_register 7
+ 283 0006 7860     		str	r0, [r7, #4]
+ 284 0008 3960     		str	r1, [r7]
+  75:Src/UART.c    ****     //Compute whole number part of baud
+  76:Src/UART.c    ****     uint32_t whole = (periphClock / (16 * baudRate));
+ 285              		.loc 1 76 41
+ 286 000a 3B68     		ldr	r3, [r7]
+ 287 000c 1B01     		lsls	r3, r3, #4
+ 288              		.loc 1 76 14
+ 289 000e 1900     		movs	r1, r3
+ 290 0010 7868     		ldr	r0, [r7, #4]
+ 291 0012 FFF7FEFF 		bl	__aeabi_uidiv
+ 292 0016 0300     		movs	r3, r0
+ 293 0018 FB60     		str	r3, [r7, #12]
+  77:Src/UART.c    **** 
+  78:Src/UART.c    ****     //Compute fractional part of baud
+  79:Src/UART.c    ****     uint32_t fraction = ((periphClock % (16 * baudRate)) * 16) / (16 * baudRate);
+ 294              		.loc 1 79 45
+ 295 001a 3B68     		ldr	r3, [r7]
+ 296 001c 1A01     		lsls	r2, r3, #4
+ 297              		.loc 1 79 39
+ 298 001e 7B68     		ldr	r3, [r7, #4]
+ 299 0020 1100     		movs	r1, r2
+ 300 0022 1800     		movs	r0, r3
+ 301 0024 FFF7FEFF 		bl	__aeabi_uidivmod
+ 302 0028 0B00     		movs	r3, r1
+ 303              		.loc 1 79 58
+ 304 002a 1A01     		lsls	r2, r3, #4
+ 305              		.loc 1 79 70
+ 306 002c 3B68     		ldr	r3, [r7]
+ 307 002e 1B01     		lsls	r3, r3, #4
+ 308              		.loc 1 79 14
+ 309 0030 1900     		movs	r1, r3
+ 310 0032 1000     		movs	r0, r2
+ 311 0034 FFF7FEFF 		bl	__aeabi_uidiv
+ 312 0038 0300     		movs	r3, r0
+ 313 003a BB60     		str	r3, [r7, #8]
+  80:Src/UART.c    **** 
+  81:Src/UART.c    ****     return (whole << 4) | (fraction & 0x0F);
+ 314              		.loc 1 81 19
+ 315 003c FB68     		ldr	r3, [r7, #12]
+ 316 003e 1A01     		lsls	r2, r3, #4
+ 317              		.loc 1 81 37
+ 318 0040 BB68     		ldr	r3, [r7, #8]
+ 319 0042 0F21     		movs	r1, #15
+ 320 0044 0B40     		ands	r3, r1
+ 321              		.loc 1 81 25
+ 322 0046 1343     		orrs	r3, r2
+  82:Src/UART.c    **** 
+ARM GAS  /tmp/ccTs76zE.s 			page 8
+
+
+  83:Src/UART.c    **** }
+ 323              		.loc 1 83 1
+ 324 0048 1800     		movs	r0, r3
+ 325 004a BD46     		mov	sp, r7
+ 326 004c 04B0     		add	sp, sp, #16
+ 327              		@ sp needed
+ 328 004e 80BD     		pop	{r7, pc}
+ 329              		.cfi_endproc
+ 330              	.LFE54:
+ 332              		.section	.text.__io_putchar,"ax",%progbits
+ 333              		.align	1
+ 334              		.global	__io_putchar
+ 335              		.syntax unified
+ 336              		.code	16
+ 337              		.thumb_func
+ 339              	__io_putchar:
+ 340              	.LFB55:
+  84:Src/UART.c    **** 
+  85:Src/UART.c    **** int __io_putchar(uint8_t ch)
+  86:Src/UART.c    **** {
+ 341              		.loc 1 86 1
+ 342              		.cfi_startproc
+ 343              		@ args = 0, pretend = 0, frame = 8
+ 344              		@ frame_needed = 1, uses_anonymous_args = 0
+ 345 0000 80B5     		push	{r7, lr}
+ 346              	.LCFI8:
+ 347              		.cfi_def_cfa_offset 8
+ 348              		.cfi_offset 7, -8
+ 349              		.cfi_offset 14, -4
+ 350 0002 82B0     		sub	sp, sp, #8
+ 351              	.LCFI9:
+ 352              		.cfi_def_cfa_offset 16
+ 353 0004 00AF     		add	r7, sp, #0
+ 354              	.LCFI10:
+ 355              		.cfi_def_cfa_register 7
+ 356 0006 0200     		movs	r2, r0
+ 357 0008 FB1D     		adds	r3, r7, #7
+ 358 000a 1A70     		strb	r2, [r3]
+  87:Src/UART.c    ****     UARTWrite(ch);
+ 359              		.loc 1 87 5
+ 360 000c FB1D     		adds	r3, r7, #7
+ 361 000e 1B78     		ldrb	r3, [r3]
+ 362 0010 1800     		movs	r0, r3
+ 363 0012 FFF7FEFF 		bl	UARTWrite
+  88:Src/UART.c    ****     return ch;
+ 364              		.loc 1 88 12
+ 365 0016 FB1D     		adds	r3, r7, #7
+ 366 0018 1B78     		ldrb	r3, [r3]
+  89:Src/UART.c    **** }
+ 367              		.loc 1 89 1
+ 368 001a 1800     		movs	r0, r3
+ 369 001c BD46     		mov	sp, r7
+ 370 001e 02B0     		add	sp, sp, #8
+ 371              		@ sp needed
+ 372 0020 80BD     		pop	{r7, pc}
+ 373              		.cfi_endproc
+ 374              	.LFE55:
+ARM GAS  /tmp/ccTs76zE.s 			page 9
+
+
+ 376              		.section	.text.UARTWrite,"ax",%progbits
+ 377              		.align	1
+ 378              		.syntax unified
+ 379              		.code	16
+ 380              		.thumb_func
+ 382              	UARTWrite:
+ 383              	.LFB56:
+  90:Src/UART.c    **** 
+  91:Src/UART.c    **** static void UARTWrite(uint8_t ch)
+  92:Src/UART.c    **** {
+ 384              		.loc 1 92 1
+ 385              		.cfi_startproc
+ 386              		@ args = 0, pretend = 0, frame = 8
+ 387              		@ frame_needed = 1, uses_anonymous_args = 0
+ 388 0000 80B5     		push	{r7, lr}
+ 389              	.LCFI11:
+ 390              		.cfi_def_cfa_offset 8
+ 391              		.cfi_offset 7, -8
+ 392              		.cfi_offset 14, -4
+ 393 0002 82B0     		sub	sp, sp, #8
+ 394              	.LCFI12:
+ 395              		.cfi_def_cfa_offset 16
+ 396 0004 00AF     		add	r7, sp, #0
+ 397              	.LCFI13:
+ 398              		.cfi_def_cfa_register 7
+ 399 0006 0200     		movs	r2, r0
+ 400 0008 FB1D     		adds	r3, r7, #7
+ 401 000a 1A70     		strb	r2, [r3]
+  93:Src/UART.c    ****     //Check is transmit data register is empy
+  94:Src/UART.c    ****     while (!(USART1->ISR & ISR_TXE));
+ 402              		.loc 1 94 11
+ 403 000c C046     		nop
+ 404              	.L14:
+ 405              		.loc 1 94 20 discriminator 1
+ 406 000e 064B     		ldr	r3, .L15
+ 407 0010 DB69     		ldr	r3, [r3, #28]
+ 408              		.loc 1 94 26 discriminator 1
+ 409 0012 8022     		movs	r2, #128
+ 410 0014 1340     		ands	r3, r2
+ 411              		.loc 1 94 12 discriminator 1
+ 412 0016 FAD0     		beq	.L14
+  95:Src/UART.c    **** 
+  96:Src/UART.c    ****     //Write transmit data register
+  97:Src/UART.c    ****     USART1->TDR = ch;
+ 413              		.loc 1 97 11
+ 414 0018 034B     		ldr	r3, .L15
+ 415              		.loc 1 97 17
+ 416 001a FA1D     		adds	r2, r7, #7
+ 417 001c 1278     		ldrb	r2, [r2]
+ 418 001e 9A62     		str	r2, [r3, #40]
+  98:Src/UART.c    **** }
+ 419              		.loc 1 98 1
+ 420 0020 C046     		nop
+ 421 0022 BD46     		mov	sp, r7
+ 422 0024 02B0     		add	sp, sp, #8
+ 423              		@ sp needed
+ 424 0026 80BD     		pop	{r7, pc}
+ARM GAS  /tmp/ccTs76zE.s 			page 10
+
+
+ 425              	.L16:
+ 426              		.align	2
+ 427              	.L15:
+ 428 0028 00380140 		.word	1073821696
+ 429              		.cfi_endproc
+ 430              	.LFE56:
+ 432              		.section	.text.UARTTransmit,"ax",%progbits
+ 433              		.align	1
+ 434              		.global	UARTTransmit
+ 435              		.syntax unified
+ 436              		.code	16
+ 437              		.thumb_func
+ 439              	UARTTransmit:
+ 440              	.LFB57:
+  99:Src/UART.c    **** 
+ 100:Src/UART.c    **** void UARTTransmit(uint8_t *str, unsigned size)
+ 101:Src/UART.c    **** {
+ 441              		.loc 1 101 1
+ 442              		.cfi_startproc
+ 443              		@ args = 0, pretend = 0, frame = 16
+ 444              		@ frame_needed = 1, uses_anonymous_args = 0
+ 445 0000 80B5     		push	{r7, lr}
+ 446              	.LCFI14:
+ 447              		.cfi_def_cfa_offset 8
+ 448              		.cfi_offset 7, -8
+ 449              		.cfi_offset 14, -4
+ 450 0002 84B0     		sub	sp, sp, #16
+ 451              	.LCFI15:
+ 452              		.cfi_def_cfa_offset 24
+ 453 0004 00AF     		add	r7, sp, #0
+ 454              	.LCFI16:
+ 455              		.cfi_def_cfa_register 7
+ 456 0006 7860     		str	r0, [r7, #4]
+ 457 0008 3960     		str	r1, [r7]
+ 458              	.LBB2:
+ 102:Src/UART.c    ****     for(unsigned i=0; i<size; i++)
+ 459              		.loc 1 102 18
+ 460 000a 0023     		movs	r3, #0
+ 461 000c FB60     		str	r3, [r7, #12]
+ 462              		.loc 1 102 5
+ 463 000e 09E0     		b	.L18
+ 464              	.L19:
+ 103:Src/UART.c    ****         UARTWrite(str[i]);
+ 465              		.loc 1 103 22
+ 466 0010 7A68     		ldr	r2, [r7, #4]
+ 467 0012 FB68     		ldr	r3, [r7, #12]
+ 468 0014 D318     		adds	r3, r2, r3
+ 469              		.loc 1 103 9
+ 470 0016 1B78     		ldrb	r3, [r3]
+ 471 0018 1800     		movs	r0, r3
+ 472 001a FFF7FEFF 		bl	UARTWrite
+ 102:Src/UART.c    ****     for(unsigned i=0; i<size; i++)
+ 473              		.loc 1 102 32 discriminator 3
+ 474 001e FB68     		ldr	r3, [r7, #12]
+ 475 0020 0133     		adds	r3, r3, #1
+ 476 0022 FB60     		str	r3, [r7, #12]
+ 477              	.L18:
+ARM GAS  /tmp/ccTs76zE.s 			page 11
+
+
+ 102:Src/UART.c    ****     for(unsigned i=0; i<size; i++)
+ 478              		.loc 1 102 24 discriminator 1
+ 479 0024 FA68     		ldr	r2, [r7, #12]
+ 480 0026 3B68     		ldr	r3, [r7]
+ 481 0028 9A42     		cmp	r2, r3
+ 482 002a F1D3     		bcc	.L19
+ 483              	.LBE2:
+ 104:Src/UART.c    **** }...
+ 484              		.loc 1 104 1
+ 485 002c C046     		nop
+ 486 002e C046     		nop
+ 487 0030 BD46     		mov	sp, r7
+ 488 0032 04B0     		add	sp, sp, #16
+ 489              		@ sp needed
+ 490 0034 80BD     		pop	{r7, pc}
+ 491              		.cfi_endproc
+ 492              	.LFE57:
+ 494              		.text
+ 495              	.Letext0:
+ 496              		.file 2 "/home/luminyx/Documents/Dev/Embedded/Setup/arm-gnu-toolchain/arm-none-eabi/include/machin
+ 497              		.file 3 "/home/luminyx/Documents/Dev/Embedded/Setup/arm-gnu-toolchain/arm-none-eabi/include/sys/_s
+ 498              		.file 4 "Drivers/CMSIS/Device/ST/STM32C0xx/Include/stm32c031xx.h"
+ARM GAS  /tmp/ccTs76zE.s 			page 12
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 UART.c
+     /tmp/ccTs76zE.s:19     .text.UARTInit:00000000 $t
+     /tmp/ccTs76zE.s:25     .text.UARTInit:00000000 UARTInit
+     /tmp/ccTs76zE.s:214    .text.setBaudRate:00000000 setBaudRate
+     /tmp/ccTs76zE.s:199    .text.UARTInit:000000e8 $d
+     /tmp/ccTs76zE.s:209    .text.setBaudRate:00000000 $t
+     /tmp/ccTs76zE.s:266    .text.computeBaudRate:00000000 computeBaudRate
+     /tmp/ccTs76zE.s:254    .text.setBaudRate:00000024 $d
+     /tmp/ccTs76zE.s:261    .text.computeBaudRate:00000000 $t
+     /tmp/ccTs76zE.s:333    .text.__io_putchar:00000000 $t
+     /tmp/ccTs76zE.s:339    .text.__io_putchar:00000000 __io_putchar
+     /tmp/ccTs76zE.s:382    .text.UARTWrite:00000000 UARTWrite
+     /tmp/ccTs76zE.s:377    .text.UARTWrite:00000000 $t
+     /tmp/ccTs76zE.s:428    .text.UARTWrite:00000028 $d
+     /tmp/ccTs76zE.s:433    .text.UARTTransmit:00000000 $t
+     /tmp/ccTs76zE.s:439    .text.UARTTransmit:00000000 UARTTransmit
+
+UNDEFINED SYMBOLS
+__aeabi_uidiv
+__aeabi_uidivmod
