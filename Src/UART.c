@@ -47,7 +47,7 @@ void UARTInit(void)
     //Enable clock for USART2
     RCC->APBENR1 |= USART2EN;
 
-    //Check if HSICLK is enabled
+    //Check if CLK is enabled
     while (!(RCC->CR & 0b1 << 8));
 
     //Ensure the HSI prescaler is set to 4 (default)
