@@ -16,7 +16,7 @@ int main(void)
 
     while(1)
     {
-        UARTTransmit((uint8_t*)str, lenStr);
+        printf(str);
         delay(1000);
     }
 }

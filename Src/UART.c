@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 
-#define USART1EN (0b1 << 14)
+#define USART2EN (0b1 << 17)
 #define GPIOAEN (0b1 << 0)
 
 #define CR1_TE (0b1 << 3)
@@ -24,28 +24,28 @@ void UARTInit(void)
     //Set GPIO pins to alternate function mode
 
     //PB6 TX
-    GPIOA->MODER &= ~(0b1 << 18);
-    GPIOA->MODER |= (0b1 << 19);
+    GPIOA->MODER &= ~(0b1 << 4);
+    GPIOA->MODER |= (0b1 << 5);
 
     //PB7 RX
-    GPIOA->MODER &= ~(0b1 << 20);
-    GPIOA->MODER |= (0b1 << 21);
+    GPIOA->MODER &= ~(0b1 << 6);
+    GPIOA->MODER |= (0b1 << 7);
 
     //Select alternate function for each pin
 
-    //PB6 AF0
-    GPIOA->AFR[1] &= ~(0b111 << 5);
-    GPIOA->AFR[1] |= (0b1 << 4);
+    //PA2 AF1
+    GPIOA->AFR[0] &= ~(0b111 << 9);
+    GPIOA->AFR[0] |= (0b1 << 8);
 
-    //PB7 AF0
-    GPIOA->AFR[1] &= ~(0b111 << 9);
-    GPIOA->AFR[1] |= (0b1 << 8);
-
-
+    //PA3 AF1
+    GPIOA->AFR[0] &= ~(0b111 << 13);
+    GPIOA->AFR[0] |= (0b1 << 12);
 
 
-    //Enable clock for USART1
-    RCC->APBENR2 |= USART1EN;
+
+
+    //Enable clock for USART2
+    RCC->APBENR1 |= USART2EN;
 
     //Check if HSICLK is enabled
     while (!(RCC->CR & 0b1 << 8));
@@ -57,16 +57,16 @@ void UARTInit(void)
     setBaudRate(APB_CLK, UART_BAUDRATE);
 
     //Configure Transfer direction
-    USART1->CR1 = CR1_TE | CR1_RE;
+    USART2->CR1 = CR1_TE | CR1_RE;
 
     //Enable uart module
-    USART1->CR1 |= CR1_UE;
+    USART2->CR1 |= CR1_UE;
 }
 
 //write the fractional baud rate to the BRR
 static void setBaudRate(uint32_t periphClock, uint32_t baudRate)
 {
-    USART1->BRR = computeBaudRate(periphClock, baudRate);
+    USART2->BRR = computeBaudRate(periphClock, baudRate);
 }
 
 //Calculate the fractional baud rate
@@ -92,10 +92,10 @@ int __io_putchar(uint8_t ch)
 static void UARTWrite(uint8_t ch)
 {
     //Check is transmit data register is empy
-    while (!(USART1->ISR & ISR_TXE));
+    while (!(USART2->ISR & ISR_TXE));
 
     //Write transmit data register
-    USART1->TDR = ch;
+    USART2->TDR = ch;
 }
 
 void UARTTransmit(uint8_t *str, unsigned size)
