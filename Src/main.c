@@ -9,6 +9,8 @@ int main(void)
     char str[] = "Hello World!\r\n";
     unsigned lenStr = sizeof(str) / sizeof(char) - 1;
 
+    uint8_t rxArr[100];
+
 
     LEDInit();
     UARTInit();
@@ -16,7 +18,6 @@ int main(void)
 
     while(1)
     {
-        printf(str);
-        delay(1000);
+        
     }
 }

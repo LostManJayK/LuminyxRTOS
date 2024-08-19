@@ -1,5 +1,6 @@
 #include "UART.h"
-#include <stdio.h>
+//#include "NVIC.h"
+#include "timebase.h"
 
 
 #define USART2EN (0b1 << 17)
@@ -8,14 +9,40 @@
 #define CR1_TE (0b1 << 3)
 #define CR1_RE (0b1 << 2)
 #define CR1_UE (0b1 << 0)
+#define CR1_RXFNEIE (0b1 << 5)
 
 #define ISR_TXE (0b1 << 7)
+#define ISR_RXNE (0b1 << 5)
+#define ISR_TC (0b1 << 6)
+
+#define ISER_USART2 (0b1 << 28)
+#define ISCR_USART2 (0b1 << 28)
 
 #define SYS_FREQ 12000000
 #define APB_CLK  SYS_FREQ
 #define UART_BAUDRATE 9600
 
 
+//Declare universal rx buffer
+#define BUFFER_SIZE 1000
+static uint8_t rxBuffer[BUFFER_SIZE];
+
+static uint8_t dataMsg[50] = "Data Received: ";
+
+//Set the Baud Rate for the UART
+static void setBaudRate(uint32_t, uint32_t);
+
+//Calculate the Baud Rate
+static uint32_t computeBaudRate(uint32_t, uint32_t);
+
+//Write a byte to the UART register
+static void UARTWrite(uint8_t ch);
+
+//Read a byte from the UART Register
+static uint8_t UARTRead(void);
+
+
+//Configure and select UART
 void UARTInit(void)
 {
     //Enable GPIO clock
@@ -42,8 +69,6 @@ void UARTInit(void)
     GPIOA->AFR[0] |= (0b1 << 12);
 
 
-
-
     //Enable clock for USART2
     RCC->APBENR1 |= USART2EN;
 
@@ -61,6 +86,15 @@ void UARTInit(void)
 
     //Enable uart module
     USART2->CR1 |= CR1_UE;
+
+    //Enable interrupts for UART2
+    NVIC->ISER[0] |= ISER_USART2;
+
+    //Enable UART Receive interrupt
+    USART2->CR1 |= CR1_RXFNEIE;
+
+    //Enable global interrupt
+    __enable_irq();
 }
 
 //write the fractional baud rate to the BRR
@@ -83,12 +117,14 @@ static uint32_t computeBaudRate(uint32_t periphClock, uint32_t baudRate)
 
 }
 
+//Overload printf for UART Transmit
 int __io_putchar(uint8_t ch)
 {
     UARTWrite(ch);
     return ch;
 }
 
+//Write a byte to the UART register
 static void UARTWrite(uint8_t ch)
 {
     //Check is transmit data register is empy
@@ -96,10 +132,54 @@ static void UARTWrite(uint8_t ch)
 
     //Write transmit data register
     USART2->TDR = ch;
+
+    //Wait for transmit complete
+    while(!(USART2->ISR & ISR_TC));
 }
 
-void UARTTransmit(uint8_t *str, unsigned size)
+//Transmit a string of bytes over UART
+void UARTTransmit(uint8_t *str, uint32_t size)
 {
     for(unsigned i=0; i<size; i++)
         UARTWrite(str[i]);
 }
+
+//Read a byte from the UART Register
+uint8_t UARTRead(void)
+{
+    // //Wait for data to enter the RDR register
+    // while(!(USART2->ISR & ISR_RXNE));
+
+    //Read the data from the register
+    return USART2->RDR;
+
+
+}
+
+//Receive a string of bytes over UART
+void UARTReceive(uint8_t* rxArr, uint32_t size)
+{
+    for(uint32_t i=0; i<size; i++)
+        rxArr[i] = rxBuffer[i];
+
+}
+
+//UART interrupt handler
+void USART2_IRQHandler(void)
+{
+    uint32_t rxPos = 0;
+
+    while(USART2->ISR & ISR_RXNE)
+    {
+        if(rxPos < BUFFER_SIZE)
+            rxBuffer[rxPos++] = UARTRead();
+        else
+            (void)UARTRead();
+    }
+
+
+    UARTTransmit(rxBuffer, rxPos);
+
+
+}
+
